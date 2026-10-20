@@ -1,0 +1,486 @@
+﻿@model HomeWork_66_Sydykbekov_Talgat.ViewModels.ProfileViewModel
+
+@{
+    ViewData["Title"] = "Мой профиль";
+
+    var avatarPath = Model.User.AvatarUrl;
+
+    var avatarUrl = string.IsNullOrWhiteSpace(avatarPath)
+        ? Url.Content("~/images/avatars/default.png")
+        : Url.Content("~/" + avatarPath.TrimStart('/'));
+}
+
+<div class="container py-4">
+
+    @if (TempData["Success"] is string message)
+    {
+        <div class="alert alert-success" role="status">
+            @message
+        </div>
+    }
+
+    <div class="card border-0 bg-body-tertiary rounded-4 mb-4">
+        <div class="card-body p-4 p-md-5">
+            <div class="row g-4 align-items-center">
+
+                <div class="col-12 col-md-auto text-center">
+                    <img src="@avatarUrl"
+                         alt="Фотография профиля"
+                         width="120"
+                         height="120"
+                         class="rounded-circle object-fit-cover border" />
+                </div>
+
+                <div class="col-12 col-md">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <span class="small text-muted">Личный кабинет</span>
+
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <span class="badge bg-secondary">
+                                Администратор
+                            </span>
+                        }
+
+                        @if (User.IsInRole("Employer"))
+                        {
+                            <span class="badge bg-primary">
+                                Работодатель
+                            </span>
+                        }
+
+                        @if (User.IsInRole("User"))
+                        {
+                            <span class="badge bg-primary">
+                                Соискатель
+                            </span>
+                        }
+                    </div>
+
+                    <h1 class="h2 fw-bold text-break mb-3">
+                        @Model.User.UserName
+                    </h1>
+
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6">
+                            <div class="small text-muted mb-1">Email</div>
+                            <div class="text-break">@Model.User.Email</div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="small text-muted mb-1">Телефон</div>
+                            <div class="text-break">
+                                @(string.IsNullOrWhiteSpace(Model.User.PhoneNumber)
+                                    ? "Не указан"
+                                    : Model.User.PhoneNumber)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-auto">
+                    <button type="button"
+                            class="btn btn-outline-primary"
+                            data-bs-toggle="modal"
+                            data-bs-target="#editProfileModal">
+                        Редактировать профиль
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    @if (User.IsInRole("Employer"))
+    {
+        <section class="mb-4">
+            <div class="d-flex flex-wrap justify-content-between
+                        align-items-center gap-3 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <h2 class="h4 mb-0">Мои вакансии</h2>
+                    <span class="badge bg-secondary rounded-pill">
+                        @Model.Vacancies.Count
+                    </span>
+                </div>
+
+                <a asp-controller="Vacancy"
+                   asp-action="Create"
+                   class="btn btn-primary">
+                    Создать вакансию
+                </a>
+            </div>
+
+            @if (Model.Vacancies.Count == 0)
+            {
+                <div class="card rounded-4">
+                    <div class="card-body text-center py-5 px-4">
+                        <h3 class="h5 mb-2">Вакансий пока нет</h3>
+                        <p class="text-muted mb-0">
+                            Создайте первую вакансию,
+                            чтобы начать поиск сотрудников.
+                        </p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @foreach (var vacancy in Model.Vacancies)
+                {
+                    <article class="card rounded-4 mb-3">
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-8">
+                                    <span class="badge mb-2
+                                                 @(vacancy.IsPublished
+                                                     ? "bg-success"
+                                                     : "bg-secondary")">
+                                        @(vacancy.IsPublished
+                                            ? "Опубликована"
+                                            : "Не опубликована")
+                                    </span>
+
+                                    <h3 class="h5 text-break mb-2">
+                                        @vacancy.Title
+                                    </h3>
+
+                                    <p class="small text-muted mb-0">
+                                        Опыт работы:
+                                        от @vacancy.ExperienceFrom
+                                        до @vacancy.ExperienceTo лет
+                                    </p>
+                                </div>
+
+                                <div class="col-12 col-md-4 text-md-end">
+                                    <div class="small text-muted mb-1">
+                                        Зарплата
+                                    </div>
+                                    <div class="fs-5 fw-semibold">
+                                        @vacancy.Salary.ToString("N2")
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="small text-muted mt-3">
+                                Обновлено:
+                                @vacancy.UpdatedAt.ToString("dd.MM.yyyy HH:mm:ss") UTC
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2 border-top pt-3 mt-3">
+                                <a asp-controller="Vacancy"
+                                   asp-action="Details"
+                                   asp-route-id="@vacancy.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Посмотреть
+                                </a>
+
+                                <a asp-controller="Vacancy"
+                                   asp-action="Edit"
+                                   asp-route-id="@vacancy.Id"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    Редактировать
+                                </a>
+
+                                <a asp-controller="EmployerApplication"
+                                   asp-action="Index"
+                                   asp-route-vacancyId="@vacancy.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Отклики
+                                </a>
+
+                                <form asp-controller="Vacancy"
+                                      asp-action="Refresh"
+                                      asp-route-id="@vacancy.Id"
+                                      method="post"
+                                      class="m-0">
+                                    <button type="submit"
+                                            class="btn btn-outline-secondary btn-sm">
+                                        Обновить дату
+                                    </button>
+                                </form>
+
+                                <form asp-controller="Vacancy"
+                                      asp-action="SetPublication"
+                                      asp-route-id="@vacancy.Id"
+                                      method="post"
+                                      class="m-0 ms-sm-auto">
+
+                                    @if (vacancy.IsPublished)
+                                    {
+                                        <button type="submit"
+                                                name="isPublished"
+                                                value="false"
+                                                class="btn btn-outline-secondary btn-sm">
+                                            Снять с публикации
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit"
+                                                name="isPublished"
+                                                value="true"
+                                                class="btn btn-success btn-sm">
+                                            Опубликовать
+                                        </button>
+                                    }
+                                </form>
+                            </div>
+                        </div>
+                    </article>
+                }
+            }
+        </section>
+    }
+
+    @if (User.IsInRole("User"))
+    {
+        <section>
+            <div class="d-flex flex-wrap justify-content-between
+                        align-items-center gap-3 mb-3">
+                <div class="d-flex align-items-center gap-2">
+                    <h2 class="h4 mb-0">Мои резюме</h2>
+                    <span class="badge bg-secondary rounded-pill">
+                        @Model.Resumes.Count
+                    </span>
+                </div>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a asp-controller="JobApplication"
+                       asp-action="Index"
+                       class="btn btn-outline-primary">
+                        Мои отклики
+                    </a>
+
+                    <a asp-controller="Resume"
+                       asp-action="Create"
+                       class="btn btn-primary">
+                        Создать резюме
+                    </a>
+                </div>
+            </div>
+
+            @if (Model.Resumes.Count == 0)
+            {
+                <div class="card rounded-4">
+                    <div class="card-body text-center py-5 px-4">
+                        <h3 class="h5 mb-2">Резюме пока нет</h3>
+                        <p class="text-muted mb-0">
+                            Создайте резюме, расскажите о своём опыте
+                            и начните откликаться на вакансии.
+                        </p>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @foreach (var resume in Model.Resumes)
+                {
+                    <article class="card rounded-4 mb-3">
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-8">
+                                    <span class="badge mb-2
+                                                 @(resume.IsPublished
+                                                     ? "bg-success"
+                                                     : "bg-secondary")">
+                                        @(resume.IsPublished
+                                            ? "Опубликовано"
+                                            : "Не опубликовано")
+                                    </span>
+
+                                    <h3 class="h5 text-break mb-0">
+                                        @resume.Title
+                                    </h3>
+                                </div>
+
+                                <div class="col-12 col-md-4 text-md-end">
+                                    <div class="small text-muted mb-1">
+                                        Ожидаемая зарплата
+                                    </div>
+                                    <div class="fs-5 fw-semibold">
+                                        @resume.ExpectedSalary.ToString("N2")
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="small text-muted mt-3">
+                                Обновлено:
+                                @resume.UpdatedAt.ToString("dd.MM.yyyy HH:mm") UTC
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2 border-top pt-3 mt-3">
+                                <a asp-controller="Resume"
+                                   asp-action="Details"
+                                   asp-route-id="@resume.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Посмотреть
+                                </a>
+
+                                <a asp-controller="Resume"
+                                   asp-action="Edit"
+                                   asp-route-id="@resume.Id"
+                                   class="btn btn-outline-secondary btn-sm">
+                                    Редактировать
+                                </a>
+
+                                <form asp-controller="Resume"
+                                      asp-action="Refresh"
+                                      asp-route-id="@resume.Id"
+                                      method="post"
+                                      class="m-0">
+                                    <button type="submit"
+                                            class="btn btn-outline-secondary btn-sm">
+                                        Обновить дату
+                                    </button>
+                                </form>
+
+                                <form asp-controller="Resume"
+                                      asp-action="SetPublication"
+                                      asp-route-id="@resume.Id"
+                                      method="post"
+                                      class="m-0 ms-sm-auto">
+
+                                    @if (resume.IsPublished)
+                                    {
+                                        <button type="submit"
+                                                name="isPublished"
+                                                value="false"
+                                                class="btn btn-outline-secondary btn-sm">
+                                            Снять с публикации
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit"
+                                                name="isPublished"
+                                                value="true"
+                                                class="btn btn-success btn-sm">
+                                            Опубликовать
+                                        </button>
+                                    }
+                                </form>
+                            </div>
+                        </div>
+                    </article>
+                }
+            }
+        </section>
+    }
+
+</div>
+
+<div class="modal fade"
+     id="editProfileModal"
+     tabindex="-1"
+     aria-labelledby="editProfileTitle"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4">
+            <form asp-controller="User"
+                  asp-action="Edit"
+                  method="post">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileTitle">
+                        Редактирование профиля
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Закрыть">
+                    </button>
+                </div>
+
+                <div class="modal-body p-4">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div asp-validation-summary="All"
+                             class="alert alert-danger"
+                             role="alert">
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label for="editUserName" class="form-label">
+                            Логин
+                        </label>
+
+                        @Html.TextBox(
+                            "userName",
+                            Model.User.UserName,
+                            new
+                            {
+                                id = "editUserName",
+                                @class = "form-control",
+                                required = "required"
+                            })
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editEmail" class="form-label">
+                            Email
+                        </label>
+
+                        @Html.TextBox(
+                            "email",
+                            Model.User.Email,
+                            new
+                            {
+                                id = "editEmail",
+                                @class = "form-control",
+                                type = "email",
+                                required = "required"
+                            })
+                    </div>
+
+                    <div>
+                        <label for="editPhone" class="form-label">
+                            Телефон
+                        </label>
+
+                        @Html.TextBox(
+                            "phoneNumber",
+                            Model.User.PhoneNumber,
+                            new
+                            {
+                                id = "editPhone",
+                                @class = "form-control",
+                                type = "tel",
+                                required = "required"
+                            })
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-secondary"
+                            data-bs-dismiss="modal">
+                        Отмена
+                    </button>
+
+                    <button type="submit" class="btn btn-primary">
+                        Сохранить изменения
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts
+{
+    @if (ViewData["OpenEditModal"] is true)
+    {
+        <script>
+            const profileModal =
+                document.getElementById("editProfileModal");
+
+            if (profileModal) {
+                bootstrap.Modal
+                    .getOrCreateInstance(profileModal)
+                    .show();
+            }
+        </script>
+    }
+}

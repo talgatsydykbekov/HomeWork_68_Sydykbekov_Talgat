@@ -1,0 +1,90 @@
+﻿@model HomeWork_66_Sydykbekov_Talgat.ViewModels.CreateVacancyViewModel
+
+
+
+@{
+    ViewData["Title"] = "Создать вакансию";
+}
+
+<div class="container mt-4">
+    <h2>Создать вакансию</h2>
+
+    <form asp-controller="Vacancy"
+          asp-action="Create"
+          method="post">
+
+        <div asp-validation-summary="All"
+             class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label">
+                Название вакансии
+            </label>
+            <input asp-for="Title" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Salary" class="form-label">
+                Зарплата
+            </label>
+            <input asp-for="Salary"
+                   type="number"
+                   min="0"
+                   max="1000000000"
+                   step="0.01"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CategoryId" class="form-label">
+                Категория
+            </label>
+            <select asp-for="CategoryId"
+                    asp-items="Model.Categories"
+                    class="form-select">
+                <option value="">Выберите категорию</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ExperienceFrom" class="form-label">
+                Опыт работы от, лет
+            </label>
+            <input asp-for="ExperienceFrom"
+                   type="number"
+                   min="0"
+                   max="100"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ExperienceTo" class="form-label">
+                Опыт работы до, лет
+            </label>
+            <input asp-for="ExperienceTo"
+                   type="number"
+                   min="0"
+                   max="100"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Description" class="form-label">
+                Описание вакансии и требования
+            </label>
+            <textarea asp-for="Description"
+                      rows="7"
+                      class="form-control"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Создать
+        </button>
+
+        <a asp-controller="User"
+           asp-action="Index"
+           class="btn btn-secondary">
+            Отмена
+        </a>
+    </form>
+</div>

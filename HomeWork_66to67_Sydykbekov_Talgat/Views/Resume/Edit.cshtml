@@ -1,0 +1,73 @@
+﻿@model HomeWork_66_Sydykbekov_Talgat.ViewModels.CreateResumeViewModel
+
+
+@{
+    ViewData["Title"] = "Редактирование резюме";
+}
+
+<div class="container mt-4">
+    <h2>Редактирование резюме</h2>
+
+    <form asp-controller="Resume"
+          asp-action="Edit"
+          asp-route-id="@ViewBag.ResumeId"
+          method="post">
+
+        <div asp-validation-summary="All"
+             class="text-danger mb-3">
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Title" class="form-label">
+                Желаемая должность
+            </label>
+
+            <input asp-for="Title" class="form-control" />
+
+            <span asp-validation-for="Title"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="ExpectedSalary" class="form-label">
+                Ожидаемая зарплата
+            </label>
+
+            <input asp-for="ExpectedSalary"
+                   type="number"
+                   min="0"
+                   max="1000000000"
+                   step="0.01"
+                   class="form-control" />
+
+            <span asp-validation-for="ExpectedSalary"
+                  class="text-danger"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="CategoryId" class="form-label">
+                Категория
+            </label>
+
+            <select asp-for="CategoryId"
+                    asp-items="Model.Categories"
+                    class="form-select">
+                <option value="">Выберите категорию</option>
+            </select>
+
+            <span asp-validation-for="CategoryId"
+                  class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Сохранить
+        </button>
+
+        <a asp-controller="Resume"
+           asp-action="Details"
+           asp-route-id="@ViewBag.ResumeId"
+           class="btn btn-secondary">
+            Отмена
+        </a>
+    </form>
+</div>

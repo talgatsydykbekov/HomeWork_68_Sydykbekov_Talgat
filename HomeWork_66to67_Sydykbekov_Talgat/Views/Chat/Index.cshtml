@@ -1,0 +1,154 @@
+﻿@model HomeWork_66_Sydykbekov_Talgat.ViewModels.ChatViewModel
+@{
+    ViewData["Title"] = "Переписка";
+}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-9 col-xl-8">
+
+            <div class="d-flex flex-wrap justify-content-between
+                        align-items-center gap-3 mb-4">
+                <div>
+                    <h2 class="mb-1">Переписка</h2>
+                    <p class="text-muted mb-0">
+                        Обсудите вакансию и условия работы
+                    </p>
+                </div>
+
+                <a asp-controller="User"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    К профилю
+                </a>
+            </div>
+
+            @if (TempData["Success"] is string message)
+            {
+                <div class="alert alert-success" role="status">
+                    @message
+                </div>
+            }
+
+            <div class="card rounded-4 overflow-hidden">
+                <div class="card-header bg-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12 col-sm-6">
+                            <div class="small text-muted mb-1">
+                                Вакансия
+                            </div>
+                            <div class="fw-semibold text-break">
+                                @Model.VacancyTitle
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-sm-6">
+                            <div class="small text-muted mb-1">
+                                Резюме
+                            </div>
+                            <div class="fw-semibold text-break">
+                                @Model.ResumeTitle
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-body bg-body-tertiary p-3 p-sm-4">
+                    @if (Model.Messages.Count == 0)
+                    {
+                        <div class="text-center py-5">
+                            <h5>Начните разговор</h5>
+                            <p class="text-muted mb-0">
+                                Представьтесь или задайте первый вопрос.
+                            </p>
+                        </div>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model.Messages)
+                        {
+                            var isMine = item.SenderId == Model.CurrentUserId;
+
+                            <div class="row mb-3">
+                                <div class="col-11 col-sm-9 col-md-8
+                                            @(isMine ? "ms-auto" : "")">
+
+                                    <div class="rounded-4 p-3
+                                                @(isMine
+                                                    ? "bg-primary text-white"
+                                                    : "bg-body border")">
+
+                                        <div class="small fw-semibold
+                                                    text-break mb-2">
+                                            @(isMine
+                                                ? "Вы"
+                                                : item.Sender?.UserName
+                                                    ?? "Собеседник")
+                                        </div>
+
+                                        @foreach (var line in item.Text
+                                            .Replace("\r\n", "\n")
+                                            .Replace("\r", "\n")
+                                            .Split('\n'))
+                                        {
+                                            <div class="text-break">@line<br /></div>
+                                        }
+
+                                        <div class="small text-end opacity-75 mt-2">
+                                            @item.SentAt.ToString("dd.MM.yyyy HH:mm") UTC
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+
+                <div class="card-footer bg-body p-3 p-sm-4">
+                    <form asp-controller="Chat"
+                          asp-action="Send"
+                          asp-route-id="@Model.ApplicationId"
+                          method="post">
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div asp-validation-summary="All"
+                                 class="alert alert-danger"
+                                 role="alert">
+                            </div>
+                        }
+
+                        <div class="mb-3">
+                            <label asp-for="Text"
+                                   class="form-label fw-semibold">
+                                Ваше сообщение
+                            </label>
+
+                            <textarea asp-for="Text"
+                                      rows="3"
+                                      maxlength="5000"
+                                      required
+                                      placeholder="Напишите сообщение…"
+                                      class="form-control rounded-3"></textarea>
+                        </div>
+
+                        <div class="d-flex flex-wrap
+                                    justify-content-between gap-2">
+                            <a asp-controller="Chat"
+                               asp-action="Index"
+                               asp-route-id="@Model.ApplicationId"
+                               class="btn btn-outline-secondary">
+                                Обновить переписку
+                            </a>
+
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+                                Отправить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

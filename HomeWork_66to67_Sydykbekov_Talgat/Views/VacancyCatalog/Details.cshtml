@@ -1,0 +1,194 @@
+﻿@using Microsoft.AspNetCore.Mvc.Rendering
+@model Vacancy
+
+@{
+    ViewData["Title"] = Model.Title;
+
+    var myResumes =
+        ViewData["ResumeOptions"] as List<SelectListItem>
+        ?? new List<SelectListItem>();
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+            <div class="card border-0 bg-body-tertiary rounded-4 mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex flex-wrap justify-content-between
+                                align-items-start gap-3 mb-4">
+                        <div>
+                            <div class="small text-muted mb-2">
+                                Вакансия
+                            </div>
+
+                            <h1 class="h2 fw-bold text-break mb-3">
+                                @Model.Title
+                            </h1>
+
+                            <a asp-controller="Company"
+                               asp-action="Details"
+                               asp-route-id="@Model.EmployerId"
+                               class="text-decoration-none text-break">
+                                @Model.Employer.UserName
+                            </a>
+                        </div>
+                        <a asp-controller="VacancyCatalog"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            К вакансиям
+                        </a>
+                    </div>
+                    <span class="badge bg-secondary text-wrap text-start mb-4">
+                        @Model.Category.NameCategory
+                    </span>
+
+                    <div class="row g-4 align-items-end">
+                        <div class="col-12 col-md-5">
+                            <div class="small text-muted mb-1">
+                                Зарплата
+                            </div>
+                            <div class="h3 fw-semibold mb-0">
+                                @Model.Salary.ToString("N2")
+                            </div>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <div class="small text-muted mb-1">
+                                Требуемый опыт
+                            </div>
+
+                            <div class="fw-semibold">
+                                От @Model.ExperienceFrom
+                                до @Model.ExperienceTo лет
+                            </div>
+                        </div>
+                        @if (User.IsInRole("User") && myResumes.Count > 0)
+                        {
+                            <div class="col-12 col-md-3 text-md-end">
+                                <button type="button"
+                                        class="btn btn-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#applyModal">
+                                    Откликнуться
+                                </button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+            @if (User.IsInRole("User") && myResumes.Count == 0)
+            {
+                <div class="alert alert-info">
+                    <div class="d-flex flex-wrap justify-content-between
+                                align-items-center gap-3">
+                        <div>
+                            Чтобы откликнуться на вакансию,
+                            сначала создайте резюме.
+                        </div>
+
+                        <a asp-controller="Resume"
+                           asp-action="Create"
+                           class="btn btn-outline-primary">
+                            Создать резюме
+                        </a>
+                    </div>
+                </div>
+            }
+            <section class="card rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-4">Описание и требования</h2>
+
+                    <div class="text-break">
+                        @foreach (var line in Model.Description
+                                          .Replace("\r\n", "\n")
+                                          .Replace("\r", "\n")
+                                          .Split('\n'))
+                        {
+                            @line<br />
+                        }
+                    </div>
+                </div>
+            </section>
+            <div class="d-flex flex-wrap gap-3 small text-muted px-1">
+                @if (Model.PublishedAt.HasValue)
+                {
+                    <span>
+                        Опубликована:
+                        @Model.PublishedAt.Value.ToString("dd.MM.yyyy HH:mm") UTC
+                    </span>
+                }
+                <span>
+                    Обновлена:
+                    @Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm") UTC
+                </span>
+            </div>
+
+        </div>
+    </div>
+</div>
+@if (User.IsInRole("User") && myResumes.Count > 0)
+{
+    <div class="modal fade"
+         id="applyModal"
+         tabindex="-1"
+         aria-labelledby="applyModalTitle"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-4">
+                <form asp-controller="JobApplication"
+                      asp-action="Create"
+                      method="post">
+                    <input type="hidden"
+                           name="vacancyId"
+                           value="@Model.Id" />
+
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="applyModalTitle">
+                            Отклик на вакансию
+                        </h5>
+
+                        <button type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Закрыть">
+                        </button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="small text-muted mb-1">
+                            Вакансия
+                        </div>
+                        <div class="fw-semibold text-break mb-4">
+                            @Model.Title
+                        </div>
+                        <label for="applyResume"
+                               class="form-label fw-semibold">
+                            Ваше резюме
+                        </label>
+                        <select id="applyResume"
+                                name="resumeId"
+                                asp-items="myResumes"
+                                class="form-select"
+                                required>
+                            <option value="">Выберите резюме</option>
+                        </select>
+                        <div class="form-text">
+                            Выберите резюме, которое хотите
+                            отправить работодателю.
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                data-bs-dismiss="modal">
+                            Отмена
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Отправить отклик
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+}

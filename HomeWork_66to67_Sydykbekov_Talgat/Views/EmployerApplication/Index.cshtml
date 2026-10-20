@@ -1,0 +1,128 @@
+﻿@model HomeWork_66_Sydykbekov_Talgat.ViewModels.VacancyApplicationsViewModel
+
+@{
+    ViewData["Title"] = "Отклики на вакансию";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+
+            <div class="card border-0 bg-body-tertiary rounded-4 mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex flex-wrap justify-content-between
+                                align-items-start gap-3">
+                        <div>
+                            <div class="small text-muted mb-2">
+                                Личный кабинет работодателя
+                            </div>
+
+                            <h1 class="h3 fw-bold mb-3">
+                                Отклики на вакансию
+                            </h1>
+
+                            <div class="text-break fs-5">
+                                @Model.VacancyTitle
+                            </div>
+                        </div>
+
+                        <a asp-controller="User"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            К профилю
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <h2 class="h4 mb-0">Соискатели</h2>
+
+                <span class="badge bg-secondary rounded-pill">
+                    @Model.Applications.Count
+                </span>
+            </div>
+
+            @if (Model.Applications.Count == 0)
+            {
+                <div class="card rounded-4">
+                    <div class="card-body text-center py-5 px-4">
+                        <h3 class="h5 mb-2">Откликов пока нет</h3>
+
+                        <p class="text-muted mb-4">
+                            Здесь появятся резюме и переписки
+                            по этой вакансии.
+                        </p>
+
+                        <a asp-controller="User"
+                           asp-action="Index"
+                           class="btn btn-primary">
+                            Вернуться в профиль
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @foreach (var application in Model.Applications)
+                {
+                    <div class="card rounded-4 mb-3">
+                        <div class="card-body p-4">
+
+                            <div class="row g-3">
+                                <div class="col-12 col-md-8">
+                                    <h3 class="h5 text-break mb-2">
+                                        @application.Resume.Title
+                                    </h3>
+
+                                    <div class="small text-muted mb-1">
+                                        Соискатель
+                                    </div>
+
+                                    <div class="fw-semibold text-break">
+                                        @application.Resume.Applicant.UserName
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-4 text-md-end">
+                                    <div class="small text-muted mb-1">
+                                        Ожидаемая зарплата
+                                    </div>
+
+                                    <div class="fs-5 fw-semibold">
+                                        @application.Resume.ExpectedSalary.ToString("N2")
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="border-top pt-3 mt-3">
+                                <div class="small text-muted mb-3">
+                                    Начало обсуждения:
+                                    @application.CratedAt.ToString("dd.MM.yyyy HH:mm") UTC
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a asp-controller="EmployerApplication"
+                                       asp-action="Resume"
+                                       asp-route-id="@application.Id"
+                                       class="btn btn-outline-primary">
+                                        Посмотреть резюме
+                                    </a>
+
+                                    <a asp-controller="Chat"
+                                       asp-action="Index"
+                                       asp-route-id="@application.Id"
+                                       class="btn btn-primary">
+                                        Открыть переписку
+                                    </a>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+</div>

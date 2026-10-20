@@ -1,0 +1,80 @@
+﻿@model HomeWork_66_Sydykbekov_Talgat.ViewModels.CreateWorkExperienceViewModel
+
+
+@{
+    ViewData["Title"] = "Редактирование опыта работы";
+}
+
+<div class="container mt-4">
+    <h2>Редактирование опыта работы</h2>
+
+    <form asp-controller="WorkExperience"
+          asp-action="Edit"
+          asp-route-id="@ViewBag.ExperienceId"
+          method="post">
+
+        <div asp-validation-summary="All"
+             class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="CompanyName" class="form-label">
+                Название компании
+            </label>
+            <input asp-for="CompanyName" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Position" class="form-label">
+                Должность
+            </label>
+            <input asp-for="Position" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="StartYear" class="form-label">
+                Год начала работы
+            </label>
+            <input asp-for="StartYear"
+                   type="number"
+                   min="1900"
+                   max="@DateTime.UtcNow.Year"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="EndYear" class="form-label">
+                Год окончания работы
+            </label>
+            <input asp-for="EndYear"
+                   type="number"
+                   min="1900"
+                   max="@DateTime.UtcNow.Year"
+                   class="form-control" />
+
+            <div class="form-text">
+                Оставьте пустым, если продолжаете работать.
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Responsibilities" class="form-label">
+                Обязанности
+            </label>
+            <textarea asp-for="Responsibilities"
+                      rows="5"
+                      class="form-control"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Сохранить
+        </button>
+
+        <a asp-controller="Resume"
+           asp-action="Details"
+           asp-route-id="@Model.ResumeId"
+           class="btn btn-secondary">
+            Отмена
+        </a>
+    </form>
+</div>
+

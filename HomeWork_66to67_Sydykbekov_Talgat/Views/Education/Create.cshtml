@@ -1,0 +1,87 @@
+﻿@model HomeWork_66_Sydykbekov_Talgat.ViewModels.CreateEducationViewModel
+
+
+
+@{
+    ViewData["Title"] = "Добавить образование";
+}
+
+<div class="container mt-4">
+    <h2>Добавить образование или курс</h2>
+
+    <form asp-controller="Education"
+          asp-action="Create"
+          method="post">
+
+        <input asp-for="ResumeId" type="hidden" />
+
+        <div asp-validation-summary="All"
+             class="text-danger mb-3"></div>
+
+        <div class="mb-3">
+            <label asp-for="IsCourse" class="form-label">
+                Тип обучения
+            </label>
+
+            <select asp-for="IsCourse" class="form-select">
+                <option value="false">Образование</option>
+                <option value="true">Курс / повышение квалификации</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="InstitutionName" class="form-label">
+                Учебное заведение или организация
+            </label>
+
+            <input asp-for="InstitutionName" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Program" class="form-label">
+                Специальность или название курса
+            </label>
+
+            <input asp-for="Program" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="StartYear" class="form-label">
+                Год начала
+            </label>
+
+            <input asp-for="StartYear"
+                   type="number"
+                   min="1900"
+                   max="@DateTime.UtcNow.Year"
+                   class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="EndYear" class="form-label">
+                Год окончания или ожидаемого окончания
+            </label>
+
+            <input asp-for="EndYear"
+                   type="number"
+                   min="1900"
+                   max="9999"
+                   class="form-control" />
+
+            <div class="form-text">
+                Можно оставить пустым, если обучение продолжается.
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            Добавить
+        </button>
+
+        <a asp-controller="Resume"
+           asp-action="Details"
+           asp-route-id="@Model.ResumeId"
+           class="btn btn-secondary">
+            Отмена
+        </a>
+    </form>
+</div>

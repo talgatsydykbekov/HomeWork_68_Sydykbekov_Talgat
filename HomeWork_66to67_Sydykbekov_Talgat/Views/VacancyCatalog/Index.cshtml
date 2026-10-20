@@ -1,0 +1,223 @@
+﻿@model HomeWork_66_Sydykbekov_Talgat.ViewModels.VacancyListViewModel
+
+@{
+    ViewData["Title"] = "Вакансии";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+
+            <div class="bg-body-tertiary rounded-4 p-4 p-md-5 mb-4">
+                <h1 class="h2 fw-bold mb-2">
+                    Найдите подходящую работу
+                </h1>
+
+                <p class="text-muted mb-0">
+                    Выбирайте вакансии, знакомьтесь с компаниями
+                    и отправляйте своё резюме.
+                </p>
+            </div>
+
+            <div class="card rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <form asp-controller="VacancyCatalog"
+                          asp-action="Index"
+                          method="get">
+
+                        <div class="mb-3">
+                            <label asp-for="Search" class="form-label">
+                                Название вакансии
+                            </label>
+
+                            <input asp-for="Search"
+                                   class="form-control"
+                                   placeholder="Например, разработчик" />
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-6">
+                                <label asp-for="CategoryId"
+                                       class="form-label">
+                                    Категория
+                                </label>
+
+                                <select asp-for="CategoryId"
+                                        asp-items="Model.Categories"
+                                        class="form-select">
+                                    <option value="">Все категории</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <label asp-for="Sort" class="form-label">
+                                    Сортировка
+                                </label>
+
+                                <select asp-for="Sort" class="form-select">
+                                    <option value="updated">
+                                        Сначала недавно обновлённые
+                                    </option>
+                                    <option value="salaryAsc">
+                                        Зарплата: сначала меньшая
+                                    </option>
+                                    <option value="salaryDesc">
+                                        Зарплата: сначала большая
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="submit" class="btn btn-primary px-4">
+                                Найти вакансии
+                            </button>
+
+                            <a asp-controller="VacancyCatalog"
+                               asp-action="Index"
+                               class="btn btn-outline-secondary">
+                                Сбросить
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap justify-content-between
+                        align-items-center gap-2 mb-3">
+                <h2 class="h4 mb-0">Вакансии</h2>
+
+                @if (Model.Vacancies.Count > 0)
+                {
+                    <span class="small text-muted">
+                        На странице: @Model.Vacancies.Count
+                    </span>
+                }
+            </div>
+
+            @if (Model.Vacancies.Count == 0)
+            {
+                <div class="card rounded-4">
+                    <div class="card-body text-center py-5 px-4">
+                        <h3 class="h5 mb-2">Вакансии не найдены</h3>
+
+                        <p class="text-muted mb-4">
+                            Попробуйте изменить название,
+                            выбрать другую категорию или сбросить фильтры.
+                        </p>
+
+                        <a asp-controller="VacancyCatalog"
+                           asp-action="Index"
+                           class="btn btn-primary">
+                            Все вакансии
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @foreach (var vacancy in Model.Vacancies)
+                {
+                    <article class="card rounded-4 mb-3">
+                        <div class="card-body p-4">
+
+                            <div class="row g-3">
+                                <div class="col-12 col-md-8">
+                                    <h3 class="h5 text-break mb-2">
+                                        <a asp-controller="VacancyCatalog"
+                                           asp-action="Details"
+                                           asp-route-id="@vacancy.Id"
+                                           class="stretched-link text-decoration-none">
+                                            @vacancy.Title
+                                        </a>
+                                    </h3>
+
+                                    <a asp-controller="Company"
+                                       asp-action="Details"
+                                       asp-route-id="@vacancy.EmployerId"
+                                       class="position-relative z-2
+                                              text-decoration-none text-break">
+                                        @vacancy.Employer.UserName
+                                    </a>
+                                </div>
+
+                                <div class="col-12 col-md-4 text-md-end">
+                                    <div class="small text-muted mb-1">
+                                        Зарплата
+                                    </div>
+
+                                    <div class="fs-5 fw-semibold">
+                                        @vacancy.Salary.ToString("N2")
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-3">
+                                <span class="badge bg-body-tertiary
+                                             text-body border text-wrap text-start">
+                                    @vacancy.Category.NameCategory
+                                </span>
+                            </div>
+
+                            <div class="d-flex flex-wrap justify-content-between
+                                        align-items-center gap-2 border-top pt-3 mt-3">
+                                @if (vacancy.PublishedAt.HasValue)
+                                {
+                                    <span class="small text-muted">
+                                        Опубликована:
+                                        @vacancy.PublishedAt.Value.ToString("dd.MM.yyyy HH:mm") UTC
+                                    </span>
+                                }
+
+                                <span class="small text-primary ms-auto">
+                                    Подробнее →
+                                </span>
+                            </div>
+
+                        </div>
+                    </article>
+                }
+
+                @if (Model.TotalPages > 1)
+                {
+                    <nav aria-label="Страницы вакансий"
+                         class="d-flex flex-wrap justify-content-center
+                                align-items-center gap-3 mt-4">
+
+                        @if (Model.Page > 1)
+                        {
+                            <a asp-controller="VacancyCatalog"
+                               asp-action="Index"
+                               asp-route-page="@(Model.Page - 1)"
+                               asp-route-categoryId="@Model.CategoryId"
+                               asp-route-search="@Model.Search"
+                               asp-route-sort="@Model.Sort"
+                               class="btn btn-outline-primary">
+                                Назад
+                            </a>
+                        }
+
+                        <span class="small text-muted">
+                            Страница @Model.Page из @Model.TotalPages
+                        </span>
+
+                        @if (Model.Page < Model.TotalPages)
+                        {
+                            <a asp-controller="VacancyCatalog"
+                               asp-action="Index"
+                               asp-route-page="@(Model.Page + 1)"
+                               asp-route-categoryId="@Model.CategoryId"
+                               asp-route-search="@Model.Search"
+                               asp-route-sort="@Model.Sort"
+                               class="btn btn-outline-primary">
+                                Далее
+                            </a>
+                        }
+                    </nav>
+                }
+            }
+
+        </div>
+    </div>
+</div>

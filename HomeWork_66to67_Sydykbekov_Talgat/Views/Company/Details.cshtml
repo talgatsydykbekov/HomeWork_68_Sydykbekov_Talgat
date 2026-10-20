@@ -1,0 +1,121 @@
+﻿@model HomeWork_66_Sydykbekov_Talgat.ViewModels.CompanyProfileViewModel
+
+@{
+    ViewData["Title"] = Model.CompanyName;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+
+            <div class="card border-0 bg-body-tertiary rounded-4 mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex flex-wrap justify-content-between
+                                align-items-start gap-3">
+
+                        <div>
+                            <span class="badge bg-primary mb-3">
+                                Работодатель
+                            </span>
+
+                            <h1 class="h2 fw-bold text-break mb-2">
+                                @Model.CompanyName
+                            </h1>
+
+                            <p class="text-muted mb-0">
+                                Информация о компании и открытые вакансии
+                            </p>
+                        </div>
+
+                        <a asp-controller="VacancyCatalog"
+                           asp-action="Index"
+                           class="btn btn-outline-primary">
+                            Все вакансии
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+                <h2 class="h4 mb-0">Открытые вакансии</h2>
+
+                <span class="badge bg-secondary rounded-pill">
+                    @Model.Vacancies.Count
+                </span>
+            </div>
+
+            @if (Model.Vacancies.Count == 0)
+            {
+                <div class="card rounded-4">
+                    <div class="card-body text-center py-5 px-4">
+                        <h3 class="h5 mb-2">Пока нет открытых вакансий</h3>
+
+                        <p class="text-muted mb-4">
+                            Компания ещё не опубликовала вакансии.
+                            Посмотрите предложения других работодателей.
+                        </p>
+
+                        <a asp-controller="VacancyCatalog"
+                           asp-action="Index"
+                           class="btn btn-primary">
+                            Перейти к вакансиям
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @foreach (var vacancy in Model.Vacancies)
+                {
+                    <div class="card rounded-4 mb-3">
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-12 col-md-8">
+                                    <h3 class="h5 mb-2 text-break">
+                                        <a asp-controller="VacancyCatalog"
+                                           asp-action="Details"
+                                           asp-route-id="@vacancy.Id"
+                                           class="stretched-link text-decoration-none">
+                                            @vacancy.Title
+                                        </a>
+                                    </h3>
+
+                                    <p class="small text-muted mb-0">
+                                        @Model.CompanyName
+                                    </p>
+                                </div>
+
+                                <div class="col-12 col-md-4 text-md-end">
+                                    <div class="small text-muted mb-1">
+                                        Зарплата
+                                    </div>
+
+                                    <div class="fw-semibold fs-5">
+                                        @vacancy.Salary.ToString("N2")
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-wrap justify-content-between
+                                        align-items-center gap-2 border-top pt-3 mt-3">
+
+                                @if (vacancy.PublishedAt.HasValue)
+                                {
+                                    <span class="small text-muted">
+                                        Опубликована
+                                        @vacancy.PublishedAt.Value.ToString("dd.MM.yyyy HH:mm") UTC
+                                    </span>
+                                }
+
+                                <span class="small text-primary ms-auto">
+                                    Подробнее →
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+</div>

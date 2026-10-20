@@ -1,0 +1,140 @@
+﻿@model HomeWork_66_Sydykbekov_Talgat.ViewModels.CreateWorkExperienceViewModel
+
+@{
+    ViewData["Title"] = "Добавить опыт работы";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+
+            <div class="d-flex flex-wrap justify-content-between
+                        align-items-center gap-3 mb-4">
+                <div>
+                    <h1 class="h3 fw-bold mb-2">
+                        Добавить опыт работы
+                    </h1>
+
+                    <p class="text-muted mb-0">
+                        Расскажите о компании, должности
+                        и своих обязанностях.
+                    </p>
+                </div>
+
+                <a asp-controller="Resume"
+                   asp-action="Details"
+                   asp-route-id="@Model.ResumeId"
+                   class="btn btn-outline-secondary">
+                    К резюме
+                </a>
+            </div>
+
+            <div class="card rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <form asp-controller="WorkExperience"
+                          asp-action="Create"
+                          method="post">
+                        <input asp-for="ResumeId" type="hidden" />
+
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div asp-validation-summary="All"
+                                 class="alert alert-danger"
+                                 role="alert">
+                            </div>
+                        }
+                        <h2 class="h5 mb-3">Место работы</h2>
+                        <div class="mb-3">
+                            <label asp-for="CompanyName"
+                                   class="form-label">
+                                Название компании
+                            </label>
+
+                            <input asp-for="CompanyName"
+                                   class="form-control"
+                                   placeholder="Например, ТехноСофт" />
+
+                            <span asp-validation-for="CompanyName"
+                                  class="text-danger small"></span>
+                        </div>
+                        <div class="mb-4">
+                            <label asp-for="Position" class="form-label">
+                                Должность
+                            </label>
+
+                            <input asp-for="Position"
+                                   class="form-control"
+                                   placeholder="Например, C# разработчик" />
+                            <span asp-validation-for="Position"
+                                  class="text-danger small"></span>
+                        </div>
+                        <h2 class="h5 border-top pt-4 mb-3">
+                            Период работы
+                        </h2>
+                        <div class="row g-3 mb-4">
+                            <div class="col-12 col-sm-6">
+                                <label asp-for="StartYear"
+                                       class="form-label">
+                                    Год начала
+                                </label>
+                                <input asp-for="StartYear"
+                                       type="number"
+                                       min="1900"
+                                       max="@DateTime.UtcNow.Year"
+                                       class="form-control"
+                                       placeholder="Например, 2023" />
+
+                                <span asp-validation-for="StartYear"
+                                      class="text-danger small"></span>
+                            </div>
+                            <div class="col-12 col-sm-6">
+                                <label asp-for="EndYear"
+                                       class="form-label">
+                                    Год окончания
+                                </label>
+                                <input asp-for="EndYear"
+                                       type="number"
+                                       min="1900"
+                                       max="@DateTime.UtcNow.Year"
+                                       class="form-control"
+                                       aria-describedby="endYearHelp" />
+                                <span asp-validation-for="EndYear"
+                                      class="text-danger small"></span>
+                                <div id="endYearHelp" class="form-text">
+                                    Оставьте пустым, если продолжаете работать.
+                                </div>
+                            </div>
+                        </div>
+                        <h2 class="h5 border-top pt-4 mb-3">
+                            Обязанности
+                        </h2>
+                        <div class="mb-4">
+                            <label asp-for="Responsibilities"
+                                   class="form-label">
+                                Чем вы занимались?
+                            </label>
+                            <textarea asp-for="Responsibilities"
+                                      rows="6"
+                                      class="form-control"
+                                      placeholder="Опишите основные задачи и результаты работы."></textarea>
+                            <span asp-validation-for="Responsibilities"
+                                  class="text-danger small"></span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 border-top pt-4">
+                            <button type="submit"
+                                    class="btn btn-primary px-4">
+                                Добавить опыт
+                            </button>
+                            <a asp-controller="Resume"
+                               asp-action="Details"
+                               asp-route-id="@Model.ResumeId"
+                               class="btn btn-outline-secondary">
+                                Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

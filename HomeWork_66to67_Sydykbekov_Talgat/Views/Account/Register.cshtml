@@ -1,0 +1,93 @@
+﻿@model HomeWork_66_Sydykbekov_Talgat.ViewModels.RegisterViewModel
+@{
+    ViewBag.Title = "Регистрация";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-lg rounded-3">
+                <div class="card-header bg-success text-white text-center">
+                    <h4>Регистрация нового пользователя</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data" asp-controller="Account" asp-action="Register">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="RoleId" class="form-label">Кто я</label>
+                            <select asp-for="RoleId" class="form-select">
+                                <option value="0">-- Выберите роль --</option>
+                                <option value="2">Соискатель</option>
+                                <option value="3">Работадатель</option>
+                            </select>
+
+                            <span asp-validation-for="RoleId" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label id="nameLabel" asp-for="NicknameOrNameCompany" class="form-label">Имя пользователя</label>
+                            <input id="nameInput" asp-for="NicknameOrNameCompany" class="form-control" />
+                            <span asp-validation-for="NicknameOrNameCompany" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        
+
+                        <div class="mb-3">
+                            <label for="file">Аватар</label>
+                            <input type="file" name="file" class="form-control">
+
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PhoneNumber" class="form-label">Номер телефона</label>
+                            <input asp-for="PhoneNumber" class="form-control" type="tel" placeholder="+996 (___) __-__-__" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Password" class="form-label"></label>
+                            <input asp-for="Password" class="form-control" type="password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PasswordConfirm" class="form-label"></label>
+                            <input asp-for="PasswordConfirm" class="form-control" type="password" />
+                            <span asp-validation-for="PasswordConfirm" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">Регистрироваться</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.8/jquery.inputmask.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('input[type="tel"]').inputmask("+996 (999) 99-99-99");
+    });
+    
+    $(function () {
+        function updateLabel() {
+            const isEmployer = $("#RoleId").val() === "3";
+            
+            $("#nameLabel").text(
+                isEmployer ? "Название компании" : "Имя пользователя"
+            );
+        }
+        $("#RoleId").on("change", updateLabel);
+        updateLabel();
+    })
+</script>
+@{
+    await Html.RenderPartialAsync("_ValidationScriptsPartial");
+}

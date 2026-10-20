@@ -1,0 +1,30 @@
+﻿@using System.Security.Cryptography
+@model List<Category>
+
+@{
+    ViewBag.Title = "Категории вакансий";
+}
+@if (Model == null)
+{
+    <h1>Пока нет данных</h1>
+}
+else
+{
+    <div class="categories mt-2">
+        @foreach (var category in Model)
+        {
+            if (category == null)
+            {
+                <h1>Пока нет данных</h1>
+            }
+            else
+            {
+                <div>
+                    <div>
+                        <strong>@category.NameCategory</strong>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+}

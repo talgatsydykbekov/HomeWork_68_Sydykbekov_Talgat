@@ -1,0 +1,272 @@
+﻿@model Resume
+
+@{
+    ViewData["Title"] = Model.Title;
+
+    var hasContacts =
+        !string.IsNullOrWhiteSpace(Model.Telegram) ||
+        !string.IsNullOrWhiteSpace(Model.Email) ||
+        !string.IsNullOrWhiteSpace(Model.PhoneNumber) ||
+        !string.IsNullOrWhiteSpace(Model.FacebookUrl) ||
+        !string.IsNullOrWhiteSpace(Model.LinkedInUrl);
+}
+
+<div class="container py-4">
+
+    <div class="card border-0 bg-body-tertiary rounded-4 mb-4">
+        <div class="card-body p-4 p-md-5">
+            <div class="d-flex flex-wrap justify-content-between
+                        align-items-start gap-3 mb-4">
+                <div>
+                    <div class="small text-muted mb-2">Моё резюме</div>
+
+                    <h1 class="h2 fw-bold text-break mb-2">
+                        @Model.Title
+                    </h1>
+
+                    <span class="badge bg-secondary">
+                        @Model.Category.NameCategory
+                    </span>
+                </div>
+
+                <a asp-controller="User"
+                   asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    К профилю
+                </a>
+            </div>
+
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-7">
+                    <div class="small text-muted mb-1">
+                        Ожидаемая зарплата
+                    </div>
+
+                    <div class="h3 fw-semibold mb-0">
+                        @Model.ExpectedSalary.ToString("N2")
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-5 text-md-end">
+                    <a asp-controller="Resume"
+                       asp-action="Edit"
+                       asp-route-id="@Model.Id"
+                       class="btn btn-primary">
+                        Редактировать резюме
+                    </a>
+                </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-3 small
+                        text-muted border-top pt-3 mt-4">
+                <span>
+                    Создано:
+                    @Model.CreatedAt.ToString("dd.MM.yyyy HH:mm") UTC
+                </span>
+
+                <span>
+                    Обновлено:
+                    @Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm") UTC
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        @if (hasContacts)
+        {
+            <div class="col-12 col-lg-4 order-lg-2">
+                <div class="card rounded-4">
+                    <div class="card-body p-4">
+                        <h2 class="h5 mb-4">Контакты</h2>
+
+                        <dl class="mb-0 text-break">
+                            @if (!string.IsNullOrWhiteSpace(Model.Telegram))
+                            {
+                                <dt class="small text-muted fw-normal mb-1">
+                                    Telegram
+                                </dt>
+                                <dd class="mb-3">@Model.Telegram</dd>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(Model.Email))
+                            {
+                                <dt class="small text-muted fw-normal mb-1">
+                                    Email
+                                </dt>
+                                <dd class="mb-3">@Model.Email</dd>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(Model.PhoneNumber))
+                            {
+                                <dt class="small text-muted fw-normal mb-1">
+                                    Телефон
+                                </dt>
+                                <dd class="mb-3">@Model.PhoneNumber</dd>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(Model.FacebookUrl))
+                            {
+                                <dt class="small text-muted fw-normal mb-1">
+                                    Facebook
+                                </dt>
+                                <dd class="mb-3">@Model.FacebookUrl</dd>
+                            }
+
+                            @if (!string.IsNullOrWhiteSpace(Model.LinkedInUrl))
+                            {
+                                <dt class="small text-muted fw-normal mb-1">
+                                    LinkedIn
+                                </dt>
+                                <dd class="mb-0">@Model.LinkedInUrl</dd>
+                            }
+                        </dl>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="col-12 @(hasContacts ? "col-lg-8" : "") order-lg-1">
+
+            <section class="card rounded-4 mb-4">
+                <div class="p-4">
+                    <div class="d-flex flex-wrap justify-content-between
+                                align-items-center gap-3">
+                        <h2 class="h4 mb-0">Опыт работы</h2>
+
+                        <a asp-controller="WorkExperience"
+                           asp-action="Create"
+                           asp-route-resumeId="@Model.Id"
+                           class="btn btn-outline-primary btn-sm">
+                            Добавить опыт
+                        </a>
+                    </div>
+                </div>
+
+                @if (Model.WorkExperiences.Count == 0)
+                {
+                    <div class="border-top p-4">
+                        <p class="text-muted mb-0">
+                            Добавьте места работы, должности
+                            и основные обязанности.
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var experience in Model.WorkExperiences
+                                      .OrderByDescending(w => w.StartYear)
+                                      .ThenByDescending(w => w.Id))
+                    {
+                        <article class="border-top p-4">
+                            <div class="small text-muted mb-2">
+                                @experience.StartYear —
+                                @(experience.EndYear?.ToString()
+                                      ?? "по настоящее время")
+                            </div>
+
+                            <h3 class="h5 text-break mb-1">
+                                @experience.Position
+                            </h3>
+
+                            <p class="text-break text-muted mb-3">
+                                @experience.CompanyName
+                            </p>
+
+                            <div class="text-break">
+                                @foreach (var line in experience.Responsibilities
+                                                  .Replace("\r\n", "\n")
+                                                  .Replace("\r", "\n")
+                                                  .Split('\n'))
+                                {
+                                    @line<br />
+                                }
+                            </div>
+
+                            <div class="d-flex flex-wrap gap-2 mt-4">
+                                <a asp-controller="WorkExperience"
+                                   asp-action="Edit"
+                                   asp-route-id="@experience.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    Редактировать
+                                </a>
+
+                                <form asp-controller="WorkExperience"
+                                      asp-action="Delete"
+                                      asp-route-id="@experience.Id"
+                                      method="post"
+                                      onsubmit="return confirm('Удалить эту запись опыта работы?');">
+
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-sm">
+                                        Удалить
+                                    </button>
+                                </form>
+                            </div>
+                        </article>
+                    }
+                }
+            </section>
+
+            <section class="card rounded-4">
+                <div class="p-4">
+                    <div class="d-flex flex-wrap justify-content-between
+                                align-items-center gap-3">
+                        <h2 class="h4 mb-0">Образование и курсы</h2>
+
+                        <a asp-controller="Education"
+                           asp-action="Create"
+                           asp-route-resumeId="@Model.Id"
+                           class="btn btn-outline-primary btn-sm">
+                            Добавить
+                        </a>
+                    </div>
+                </div>
+
+                @if (Model.Educations.Count == 0)
+                {
+                    <div class="border-top p-4">
+                        <p class="text-muted mb-0">
+                            Укажите образование, пройденные курсы
+                            или повышение квалификации.
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var education in Model.Educations
+                                      .OrderByDescending(e => e.StartYear)
+                                      .ThenByDescending(e => e.Id))
+                    {
+                        <article class="border-top p-4">
+                            <div class="d-flex flex-wrap
+                                        align-items-center gap-2 mb-3">
+                                <span class="badge bg-secondary">
+                                    @(education.IsCourse
+                                        ? "Курс"
+                                        : "Образование")
+                                </span>
+
+                                <span class="small text-muted">
+                                    @education.StartYear —
+                                    @(education.EndYear?.ToString()
+                                          ?? "по настоящее время")
+                                </span>
+                            </div>
+
+                            <h3 class="h5 text-break mb-2">
+                                @education.Program
+                            </h3>
+
+                            <p class="text-muted text-break mb-0">
+                                @education.InstitutionName
+                            </p>
+                        </article>
+                    }
+                }
+            </section>
+
+        </div>
+    </div>
+</div>

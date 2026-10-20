@@ -1,0 +1,150 @@
+﻿@model List<JobApplication>
+
+@{
+    ViewData["Title"] = "Мои отклики";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10">
+
+            <div class="card border-0 bg-body-tertiary rounded-4 mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="d-flex flex-wrap justify-content-between
+                                align-items-start gap-3">
+                        <div>
+                            <h1 class="h3 fw-bold mb-2">Мои отклики</h1>
+
+                            <p class="text-muted mb-0">
+                                Ваши резюме, вакансии и переписки
+                                с работодателями
+                            </p>
+                        </div>
+
+                        <a asp-controller="User"
+                           asp-action="Index"
+                           class="btn btn-outline-secondary">
+                            К профилю
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            @if (TempData["Success"] is string message)
+            {
+                <div class="alert alert-success" role="status">
+                    @message
+                </div>
+            }
+
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <h2 class="h4 mb-0">Обсуждения</h2>
+
+                <span class="badge bg-secondary rounded-pill">
+                    @Model.Count
+                </span>
+            </div>
+
+            @if (Model.Count == 0)
+            {
+                <div class="card rounded-4">
+                    <div class="card-body text-center py-5 px-4">
+                        <h3 class="h5 mb-2">Здесь пока пусто</h3>
+
+                        <p class="text-muted mb-4">
+                            Найдите подходящую вакансию
+                            и отправьте своё резюме.
+                        </p>
+
+                        <a asp-controller="VacancyCatalog"
+                           asp-action="Index"
+                           class="btn btn-primary">
+                            Найти вакансию
+                        </a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                @foreach (var application in Model)
+                {
+                    <div class="card rounded-4 mb-3">
+                        <div class="card-body p-4">
+
+                            <div class="d-flex flex-wrap
+                                        justify-content-between
+                                        align-items-start gap-2 mb-3">
+                                <h3 class="h5 text-break mb-0">
+                                    @application.Vacancy.Title
+                                </h3>
+
+                                @if (!application.Vacancy.IsPublished)
+                                {
+                                    <span class="badge bg-secondary">
+                                        Снята с публикации
+                                    </span>
+                                }
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-12 col-md-6">
+                                    <div class="small text-muted mb-1">
+                                        Компания
+                                    </div>
+
+                                    <a asp-controller="Company"
+                                       asp-action="Details"
+                                       asp-route-id="@application.Vacancy.EmployerId"
+                                       class="text-decoration-none text-break">
+                                        @application.Vacancy.Employer.UserName
+                                    </a>
+                                </div>
+
+                                <div class="col-12 col-md-6">
+                                    <div class="small text-muted mb-1">
+                                        Ваше резюме
+                                    </div>
+
+                                    <a asp-controller="Resume"
+                                       asp-action="Details"
+                                       asp-route-id="@application.ResumeId"
+                                       class="text-decoration-none text-break">
+                                        @application.Resume.Title
+                                    </a>
+                                </div>
+                            </div>
+
+                            <div class="border-top pt-3 mt-3">
+                                <div class="small text-muted mb-3">
+                                    Начало обсуждения:
+                                    @application.CratedAt.ToString("dd.MM.yyyy HH:mm") UTC
+                                </div>
+
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a asp-controller="Chat"
+                                       asp-action="Index"
+                                       asp-route-id="@application.Id"
+                                       class="btn btn-primary">
+                                        Открыть переписку
+                                    </a>
+
+                                    @if (application.Vacancy.IsPublished)
+                                    {
+                                        <a asp-controller="VacancyCatalog"
+                                           asp-action="Details"
+                                           asp-route-id="@application.VacancyId"
+                                           class="btn btn-outline-primary">
+                                            Посмотреть вакансию
+                                        </a>
+                                    }
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+</div>

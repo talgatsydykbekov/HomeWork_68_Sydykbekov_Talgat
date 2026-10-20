@@ -1,0 +1,44 @@
+﻿@model HomeWork_66_Sydykbekov_Talgat.ViewModels.CreateResumeViewModel
+
+
+
+<h4 class="mt-4">Контакты</h4>
+<p>Заполните контакты, которые хотите указать в резюме.</p>
+
+<div class="mb-3">
+    <label asp-for="Telegram" class="form-label">Telegram</label>
+    <input asp-for="Telegram"
+           class="form-control"
+           placeholder="@@username" />
+    <span asp-validation-for="Telegram" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="Email" class="form-label">Email</label>
+    <input asp-for="Email" type="email" class="form-control" />
+    <span asp-validation-for="Email" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="PhoneNumber" class="form-label">Телефон</label>
+    <input asp-for="PhoneNumber" type="tel" class="form-control" />
+    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="FacebookUrl" class="form-label">Facebook</label>
+    <input asp-for="FacebookUrl"
+           type="url"
+           class="form-control"
+           placeholder="https://www.facebook.com/..." />
+    <span asp-validation-for="FacebookUrl" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+    <label asp-for="LinkedInUrl" class="form-label">LinkedIn</label>
+    <input asp-for="LinkedInUrl"
+           type="url"
+           class="form-control"
+           placeholder="https://www.linkedin.com/in/..." />
+    <span asp-validation-for="LinkedInUrl" class="text-danger"></span>
+</div>
