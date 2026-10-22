@@ -26,7 +26,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 {
     options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
 });
-
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
