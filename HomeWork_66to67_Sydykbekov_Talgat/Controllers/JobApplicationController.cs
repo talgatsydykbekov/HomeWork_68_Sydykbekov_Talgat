@@ -10,16 +10,10 @@ namespace HomeWork_66_Sydykbekov_Talgat.Controllers;
 [Authorize(Roles = "User")]
 public class JobApplicationController : Controller
 {
-    private readonly MyUserContext _context;
-    private readonly UserManager<MyUser> _userManager;
     private readonly IJobApplicationService _jobApplicationService;
     public JobApplicationController(
-        MyUserContext context,
-        UserManager<MyUser> userManager
-        , IJobApplicationService jobApplicationService)
+        IJobApplicationService jobApplicationService)
     {
-        _context = context;
-        _userManager = userManager;
         _jobApplicationService = jobApplicationService;
     }
     
