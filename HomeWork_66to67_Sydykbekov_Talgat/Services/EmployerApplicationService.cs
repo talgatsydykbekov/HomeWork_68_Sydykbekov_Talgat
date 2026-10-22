@@ -52,6 +52,37 @@ public class EmployerApplicationService : IEmployerApplicationService
             Applications = applications
         };
     }
+
+    public async Task<Resume> GetResumeById(int applicatiobId)
+    {
+        var user = GetUserId();
+
+        if (user == null)
+            return null;
+
+        var application = await _context.JobApplications
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a =>
+                a.Id == applicatiobId &&
+                a.Vacancy.EmployerId == user);
+
+        if (application == null)
+            return null;
+
+        var resume = await _context.Resumes
+            .AsNoTracking()
+            .Include(r => r.Category)
+            .Include(r => r.WorkExperiences)
+            .Include(r => r.Educations)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(r =>
+                r.Id == application.ResumeId);
+
+        if (resume == null)
+            return null;
+        return resume;
+    }
+
     public int? GetUserId()
     {
         var value = _httpContextAccessor.HttpContext?.User

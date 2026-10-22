@@ -37,32 +37,11 @@ public class EmployerApplicationController : Controller
     [HttpGet]
     public async Task<IActionResult> Resume(int id)
     {
-        var user = await _userManager.GetUserAsync(User);
-
-        if (user == null)
-            return Challenge();
-
-        var application = await _context.JobApplications
-            .AsNoTracking()
-            .FirstOrDefaultAsync(a =>
-                a.Id == id &&
-                a.Vacancy.EmployerId == user.Id);
-
-        if (application == null)
-            return NotFound();
-
-        var resume = await _context.Resumes
-            .AsNoTracking()
-            .Include(r => r.Category)
-            .Include(r => r.WorkExperiences)
-            .Include(r => r.Educations)
-            .AsSplitQuery()
-            .FirstOrDefaultAsync(r =>
-                r.Id == application.ResumeId);
-
+        var resume = await  _employerApplicationService.GetResumeById(id);
         if (resume == null)
+        {
             return NotFound();
-
+        }
         return View(
             "~/Views/ResumeCatalog/Details.cshtml",
             resume);
