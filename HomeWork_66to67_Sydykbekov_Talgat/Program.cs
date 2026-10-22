@@ -27,6 +27,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Account/Login");
 });
 builder.Services.AddScoped<ICategoryService, CategoryService>();
+builder.Services.AddScoped<IChatService, ChatService>();
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {

@@ -1,4 +1,5 @@
 ﻿using HomeWork_66_Sydykbekov_Talgat.Models;
+using HomeWork_66_Sydykbekov_Talgat.Services;
 using HomeWork_66_Sydykbekov_Talgat.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -8,15 +9,14 @@ namespace HomeWork_66_Sydykbekov_Talgat.Controllers;
 
 public class ChatController : Controller
 {
-    private readonly MyUserContext _context;
     private readonly UserManager<MyUser> _userManager;
+    private readonly IChatService _chatService;
 
     public ChatController(
-        MyUserContext context,
-        UserManager<MyUser> userManager)
+        UserManager<MyUser> userManager,IChatService chatService)
     {
-        _context = context;
         _userManager = userManager;
+        _chatService = chatService;
     }
 
     [HttpGet]
@@ -27,7 +27,7 @@ public class ChatController : Controller
         if (user == null)
             return Challenge();
 
-        var model = await BuildChatModel(id, user.Id);
+        var model = await _chatService.GetChatAsync(id,user.Id);
 
         if (model == null)
             return NotFound();
@@ -45,9 +45,7 @@ public class ChatController : Controller
 
         if (user == null)
             return Challenge();
-
-        // Проверяем доступ и при отправке сообщения.
-        var chat = await BuildChatModel(id, user.Id);
+        var chat = await _chatService.GetChatAsync(id,user.Id);
 
         if (chat == null)
             return NotFound();
@@ -59,54 +57,11 @@ public class ChatController : Controller
             return View("Index", chat);
         }
 
-        var message = new ChatMessage
-        {
-            JobApplicationId = chat.ApplicationId,
-            SenderId = user.Id,
-            Text = model.Text.Trim(),
-            SentAt = DateTime.UtcNow
-        };
-
-        _context.ChatMessages.Add(message);
-
-        await _context.SaveChangesAsync();
-
+        var sent = await _chatService.SendAsync(id,user.Id, model.Text);
+        if(!sent) return NotFound();
+        
         return RedirectToAction(
             nameof(Index),
             new { id = chat.ApplicationId });
-    }
-
-    private async Task<ChatViewModel?> BuildChatModel(
-        int applicationId,
-        int userId)
-    {
-        var application = await _context.JobApplications
-            .AsNoTracking()
-            .Include(a => a.Vacancy)
-            .Include(a => a.Resume)
-            .FirstOrDefaultAsync(a =>
-                a.Id == applicationId &&
-                (a.Resume.ApplicantId == userId ||
-                 a.Vacancy.EmployerId == userId));
-
-        if (application == null)
-            return null;
-
-        var messages = await _context.ChatMessages
-            .AsNoTracking()
-            .Include(m => m.Sender)
-            .Where(m => m.JobApplicationId == application.Id)
-            .OrderBy(m => m.SentAt)
-            .ThenBy(m => m.Id)
-            .ToListAsync();
-
-        return new ChatViewModel
-        {
-            ApplicationId = application.Id,
-            CurrentUserId = userId,
-            VacancyTitle = application.Vacancy.Title,
-            ResumeTitle = application.Resume.Title,
-            Messages = messages
-        };
     }
 }
