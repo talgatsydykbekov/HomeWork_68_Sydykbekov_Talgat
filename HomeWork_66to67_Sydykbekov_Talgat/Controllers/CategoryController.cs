@@ -8,18 +8,16 @@ namespace HomeWork_66_Sydykbekov_Talgat.Controllers;
 [Authorize(Roles = "Admin")]
 public class CategoryController : Controller
 {
-    private readonly UserManager<MyUser> _signInManager;
     private readonly ICategoryService _categoryServices;
 
-    public CategoryController(UserManager<MyUser> usermanager,ICategoryService categoryservices)
+    public CategoryController(ICategoryService categoryservices)
     {
-        _signInManager = usermanager;
         _categoryServices = categoryservices;
     }
     [Authorize(Roles = "Admin")]
-    public IActionResult Index()
+    public async  Task<IActionResult> Index()
     {
-        var categories = _categoryServices.GetAllCategoryAsync().Result;
+        var categories = await  _categoryServices.GetAllCategoryAsync();
         if (categories == null)
         {
             return NotFound();
@@ -33,13 +31,13 @@ public class CategoryController : Controller
     }
     [Authorize(Roles = "Admin")]
     [HttpPost]
-    public IActionResult Create(Category category)
+    public async Task<IActionResult> Create(Category category)
     {
         if (!ModelState.IsValid)
         {
             return View(category);
         }
-        _categoryServices.CreateAsync(category);
+        await _categoryServices.CreateAsync(category);
         return RedirectToAction(nameof(Index));
     }
 }
