@@ -83,6 +83,66 @@ public class EmployerApplicationService : IEmployerApplicationService
         return resume;
     }
 
+    public async  Task<(bool RequiresLogin, int? ApplicationId)> StartAsync(int resumeId, int vacancyId)
+    {
+        var user = GetUserId();
+
+        if (user == null)
+            return (true, null);
+        var resumeExists = await _context.Resumes
+            .AnyAsync(r =>
+                r.Id == resumeId &&
+                r.IsPublished);
+        if (!resumeExists)
+            return (false, null);
+        var ownsVacancy = await _context.Vacancies
+            .AnyAsync(v =>
+                v.Id == vacancyId &&
+                v.EmployerId == user.Value &&
+                v.IsPublished);
+        if (!ownsVacancy)
+            return (false, null);
+
+        var existingId = await _context.JobApplications
+            .Where(a =>
+                a.ResumeId == resumeId &&
+                a.VacancyId == vacancyId)
+            .Select(a => (int?)a.Id)
+            .FirstOrDefaultAsync();
+
+        if (existingId.HasValue)
+        {
+            return (false, existingId.Value);
+        }
+
+        var application = new JobApplication
+        {
+            ResumeId = resumeId,
+            VacancyId = vacancyId,
+            InitiatedByUserId = user.Value,
+            CratedAt = DateTime.UtcNow
+        };
+        _context.JobApplications.Add(application);
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            var duplicateId = await _context.JobApplications
+                .AsNoTracking()
+                .Where(a =>
+                    a.ResumeId == resumeId &&
+                    a.VacancyId == vacancyId)
+                .Select(a => (int?)a.Id)
+                .FirstOrDefaultAsync();
+            if (!duplicateId.HasValue)
+                throw;
+            return (false,duplicateId);
+        }
+        return (false, application.Id);
+    }
+
     public int? GetUserId()
     {
         var value = _httpContextAccessor.HttpContext?.User
