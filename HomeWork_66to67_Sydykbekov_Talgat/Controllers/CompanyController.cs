@@ -1,20 +1,18 @@
 ﻿using HomeWork_66_Sydykbekov_Talgat.Models;
-using HomeWork_66_Sydykbekov_Talgat.ViewModels;
+using HomeWork_66_Sydykbekov_Talgat.Services;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
 namespace HomeWork_66_Sydykbekov_Talgat.Controllers;
-
 public class CompanyController : Controller
 {
-    private readonly MyUserContext _context;
     private readonly UserManager<MyUser> _userManager;
+    private ICompanyService _companyService;
 
-    public CompanyController(MyUserContext context, UserManager<MyUser> userManager)
+    public CompanyController(UserManager<MyUser> userManager,ICompanyService companyService)
     {
-        _context = context;
         _userManager = userManager;
+        _companyService = companyService;
     }
 
     [HttpGet]
@@ -31,18 +29,6 @@ public class CompanyController : Controller
         {
             return NotFound();
         }
-        var vacancies = await _context.Vacancies
-            .AsNoTracking()
-            .Where(v => v.EmployerId == company.Id && v.IsPublished)
-            .OrderByDescending(v => v.UpdatedAt)
-            .ThenByDescending(v => v.Id)
-            .ToListAsync();
-
-        var model = new CompanyProfileViewModel()
-        {
-            CompanyName = company.UserName ?? "Компания",
-            Vacancies = vacancies
-        };
-        return View(model);
+        return View(await _companyService.Details(company));
     }
 }
