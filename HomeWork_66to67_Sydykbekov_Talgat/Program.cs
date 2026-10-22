@@ -30,6 +30,7 @@ builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IEducationService, EducationService>();
+builder.Services.AddScoped<IEmployerApplicationService, EmployerApplicationService>();
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
