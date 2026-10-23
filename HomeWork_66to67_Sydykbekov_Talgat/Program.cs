@@ -36,6 +36,7 @@ builder.Services.AddScoped<IResumeCatalogService, ResumeCatalogService>();
 builder.Services.AddScoped<IResumeService, ResumeService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IVacancyCatalogServices, VacancyCatalogServices>();
+builder.Services.AddScoped<IVacancyService, VacancyService>();
 
 
 var app = builder.Build();
