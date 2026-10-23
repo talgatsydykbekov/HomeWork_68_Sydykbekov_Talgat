@@ -20,7 +20,7 @@ public class EmployerApplicationService : IEmployerApplicationService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<VacancyApplicationsViewModel> GetAllApplications(int vacancyId)
+    public async Task<VacancyApplicationsViewModel?> GetAllApplications(int vacancyId)
     {
         var user = GetUserId();
 
@@ -53,7 +53,7 @@ public class EmployerApplicationService : IEmployerApplicationService
         };
     }
 
-    public async Task<Resume> GetResumeById(int applicatiobId)
+    public async Task<ResumeDetailsViewModel?> GetResumeById(int applicatiobId)
     {
         var user = GetUserId();
 
@@ -80,7 +80,11 @@ public class EmployerApplicationService : IEmployerApplicationService
 
         if (resume == null)
             return null;
-        return resume;
+        return new ResumeDetailsViewModel
+        {
+            resume = resume,
+            Vacancies = null
+        };
     }
 
     public async  Task<(bool RequiresLogin, int? ApplicationId)> StartAsync(int resumeId, int vacancyId)
