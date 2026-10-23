@@ -34,6 +34,7 @@ builder.Services.AddScoped<IEmployerApplicationService, EmployerApplicationServi
 builder.Services.AddScoped<IJobApplicationService, JobApplicationService>();
 builder.Services.AddScoped<IResumeCatalogService, ResumeCatalogService>();
 builder.Services.AddScoped<IResumeService, ResumeService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 
 var app = builder.Build();
