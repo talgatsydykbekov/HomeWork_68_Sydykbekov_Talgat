@@ -32,6 +32,8 @@ builder.Services.AddScoped<ICompanyService, CompanyService>();
 builder.Services.AddScoped<IEducationService, EducationService>();
 builder.Services.AddScoped<IEmployerApplicationService, EmployerApplicationService>();
 builder.Services.AddScoped<IJobApplicationService, JobApplicationService>();
+builder.Services.AddScoped<IResumeCatalogService, ResumeCatalogService>();
+
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
