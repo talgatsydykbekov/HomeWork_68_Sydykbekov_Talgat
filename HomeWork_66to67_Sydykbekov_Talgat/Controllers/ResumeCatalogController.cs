@@ -11,16 +11,10 @@ namespace HomeWork_66_Sydykbekov_Talgat.Controllers;
 [Authorize(Roles = "Employer")]
 public class ResumeCatalogController : Controller
 {
-    private readonly MyUserContext _context;
-    private readonly UserManager<MyUser> _userManager;
     private IResumeCatalogService _resumeCatalogService;
 
-    public ResumeCatalogController(MyUserContext context, 
-        UserManager<MyUser> userManager
-        , IResumeCatalogService resumeCatalogService)
+    public ResumeCatalogController(IResumeCatalogService resumeCatalogService)
     {
-        _context = context;
-        _userManager = userManager;
         _resumeCatalogService = resumeCatalogService;
     }
 
