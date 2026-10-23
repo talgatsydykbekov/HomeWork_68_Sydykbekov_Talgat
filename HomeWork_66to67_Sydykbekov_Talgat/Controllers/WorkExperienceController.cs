@@ -1,4 +1,5 @@
 ﻿using HomeWork_66_Sydykbekov_Talgat.Models;
+using HomeWork_66_Sydykbekov_Talgat.Services;
 using HomeWork_66_Sydykbekov_Talgat.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -10,39 +11,27 @@ namespace HomeWork_66_Sydykbekov_Talgat.Controllers;
 [Authorize(Roles = "User")]
 public class WorkExperienceController : Controller
 {
-    private readonly MyUserContext _context;
-    private readonly UserManager<MyUser> _userManager;
+    private readonly IWorkExperienceService _workExperienceService;
 
     public WorkExperienceController(
-        MyUserContext context,
-        UserManager<MyUser> userManager)
+        IWorkExperienceService workExperienceService)
     {
-        _context = context;
-        _userManager = userManager;
+        _workExperienceService = workExperienceService;
     }
 
     [HttpGet]
     public async Task<IActionResult> Create(int resumeId)
     {
-        var user = await _userManager.GetUserAsync(User);
+        var result = await _workExperienceService
+            .GetCreateModelAsync(resumeId);
 
-        if (user == null)
+        if (result.RequiresLogin)
             return Challenge();
 
-        var ownsResume = await _context.Resumes
-            .AnyAsync(r =>
-                r.Id == resumeId &&
-                r.ApplicantId == user.Id);
-
-        if (!ownsResume)
+        if (result.Model == null)
             return NotFound();
 
-        var model = new CreateWorkExperienceViewModel
-        {
-            ResumeId = resumeId
-        };
-
-        return View(model);
+        return View(result.Model);
     }
 
     [HttpPost]
@@ -50,100 +39,49 @@ public class WorkExperienceController : Controller
     public async Task<IActionResult> Create(
         CreateWorkExperienceViewModel model)
     {
-        var user = await _userManager.GetUserAsync(User);
+        var access = await _workExperienceService
+            .GetCreateModelAsync(model.ResumeId);
 
-        if (user == null)
+        if (access.RequiresLogin)
             return Challenge();
 
-        var resume = await _context.Resumes
-            .FirstOrDefaultAsync(r =>
-                r.Id == model.ResumeId &&
-                r.ApplicantId == user.Id);
-
-        if (resume == null)
+        if (access.Model == null)
             return NotFound();
-
-        var currentYear = DateTime.UtcNow.Year;
-
-        if (model.StartYear.HasValue &&
-            model.StartYear.Value > currentYear)
-        {
-            ModelState.AddModelError(
-                nameof(model.StartYear),
-                "Год начала не может быть в будущем.");
-        }
-
-        if (model.EndYear.HasValue &&
-            model.EndYear.Value > currentYear)
-        {
-            ModelState.AddModelError(
-                nameof(model.EndYear),
-                "Год окончания не может быть в будущем.");
-        }
-
-        if (model.StartYear.HasValue &&
-            model.EndYear.HasValue &&
-            model.EndYear.Value < model.StartYear.Value)
-        {
-            ModelState.AddModelError(
-                nameof(model.EndYear),
-                "Год окончания не может быть раньше года начала.");
-        }
-
         if (!ModelState.IsValid)
             return View(model);
 
-        var experience = new WorkExperience
+        var result = await _workExperienceService.CreateAsync(model);
+        if (result.RequiresLogin)
+            return Challenge();
+
+        if (!result.ResumeId.HasValue)
+            return NotFound();
+
+        foreach (var error in result.Errors)
         {
-            ResumeId = resume.Id,
-            CompanyName = model.CompanyName.Trim(),
-            Position = model.Position.Trim(),
-            Responsibilities = model.Responsibilities.Trim(),
-            StartYear = model.StartYear!.Value,
-            EndYear = model.EndYear
-        };
-
-        _context.WorkExperiences.Add(experience);
-
-        resume.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
+            ModelState.AddModelError(error.Key, error.Value);
+        }
+        if (!ModelState.IsValid)
+            return View(model);
 
         return RedirectToAction(
             "Details",
             "Resume",
-            new { id = resume.Id });
+            new { id = result.ResumeId.Value });
     }
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
-        var user = await _userManager.GetUserAsync(User);
+        var result = await _workExperienceService
+            .GetEditModelAsync(id);
 
-        if (user == null)
+        if (result.RequiresLogin)
             return Challenge();
 
-        var experience = await _context.WorkExperiences
-            .AsNoTracking()
-            .FirstOrDefaultAsync(w =>
-                w.Id == id &&
-                w.Resume.ApplicantId == user.Id);
-
-        if (experience == null)
+        if (result.Model == null)
             return NotFound();
-
-        var model = new CreateWorkExperienceViewModel
-        {
-            ResumeId = experience.ResumeId,
-            CompanyName = experience.CompanyName,
-            Position = experience.Position,
-            Responsibilities = experience.Responsibilities,
-            StartYear = experience.StartYear,
-            EndYear = experience.EndYear
-        };
-
-        ViewBag.ExperienceId = experience.Id;
-
-        return View(model);
+        ViewBag.ExperienceId = id;
+        return View(result.Model);
     }
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -151,94 +89,64 @@ public class WorkExperienceController : Controller
         int id,
         CreateWorkExperienceViewModel model)
     {
-        var user = await _userManager.GetUserAsync(User);
+        var access = await _workExperienceService
+            .GetEditModelAsync(id);
 
-        if (user == null)
+        if (access.RequiresLogin)
             return Challenge();
 
-        var experience = await _context.WorkExperiences
-            .Include(w => w.Resume)
-            .FirstOrDefaultAsync(w =>
-                w.Id == id &&
-                w.Resume.ApplicantId == user.Id);
-
-        if (experience == null)
+        if (access.Model == null)
             return NotFound();
 
-        // Связь с резюме берём из базы, а не из формы.
-        model.ResumeId = experience.ResumeId;
+        model.ResumeId = access.Model.ResumeId;
+        ModelState.Remove(nameof(model.ResumeId));
 
-        var currentYear = DateTime.UtcNow.Year;
-
-        if (model.StartYear.HasValue &&
-            model.StartYear.Value > currentYear)
+        if (!ModelState.IsValid)
         {
-            ModelState.AddModelError(
-                nameof(model.StartYear),
-                "Год начала не может быть в будущем.");
+            ViewBag.ExperienceId = id;
+            return View(model);
         }
 
-        if (model.EndYear.HasValue &&
-            model.EndYear.Value > currentYear)
-        {
-            ModelState.AddModelError(
-                nameof(model.EndYear),
-                "Год окончания не может быть в будущем.");
-        }
+        var result = await _workExperienceService.EditAsync(id, model);
 
-        if (model.StartYear.HasValue &&
-            model.EndYear.HasValue &&
-            model.EndYear.Value < model.StartYear.Value)
+        if (result.RequiresLogin)
+            return Challenge();
+
+        if (!result.ResumeId.HasValue)
+            return NotFound();
+
+        foreach (var error in result.Errors)
         {
-            ModelState.AddModelError(
-                nameof(model.EndYear),
-                "Год окончания не может быть раньше года начала.");
+            ModelState.AddModelError(error.Key, error.Value);
         }
 
         if (!ModelState.IsValid)
         {
-            ViewBag.ExperienceId = experience.Id;
-
+            ViewBag.ExperienceId = id;
             return View(model);
         }
-
-        experience.CompanyName = model.CompanyName.Trim();
-        experience.Position = model.Position.Trim();
-        experience.Responsibilities = model.Responsibilities.Trim();
-        experience.StartYear = model.StartYear!.Value;
-        experience.EndYear = model.EndYear;
-
-        experience.Resume.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
 
         return RedirectToAction(
             "Details",
             "Resume",
-            new { id = experience.ResumeId });
+            new { id = result.ResumeId.Value });
     }
     
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var user = await _userManager.GetUserAsync(User);
-        if (user == null)
+        var result = await _workExperienceService.DeleteAsync(id);
+
+        if (result.RequiresLogin)
             return Challenge();
-        var experience = await _context.WorkExperiences
-            .Include(w => w.Resume)
-            .FirstOrDefaultAsync(w =>
-                w.Id == id &&
-                w.Resume.ApplicantId == user.Id);
-        if (experience == null)
+
+        if (!result.ResumeId.HasValue)
             return NotFound();
-        var resumeId = experience.ResumeId;
-        experience.Resume.UpdatedAt = DateTime.UtcNow;
-        _context.WorkExperiences.Remove(experience);
-        await _context.SaveChangesAsync();
+
         return RedirectToAction(
             "Details",
             "Resume",
-            new { id = resumeId });
+            new { id = result.ResumeId.Value });
     }
 }
