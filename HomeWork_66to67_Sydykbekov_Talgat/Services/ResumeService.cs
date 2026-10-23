@@ -22,12 +22,6 @@ public class ResumeService : IResumeService
         _userManager = userManager;
         _httpContextAccessor = httpContextAccessor;
     }
-    
-    
-    
-    
-    
-    
     public async Task<List<SelectListItem>> LoadCategories(CreateResumeViewModel model)
     {
         model.Categories = await _context.Categories.AsNoTracking().OrderBy(c => c.NameCategory)
@@ -38,7 +32,6 @@ public class ResumeService : IResumeService
             }).ToListAsync();
         return model.Categories;
     }
-
     public async Task<(bool RequiresLogin, bool Updated)> RefreshAsync(int id)
     {
         var user = GetUserId();
@@ -50,7 +43,6 @@ public class ResumeService : IResumeService
             .FirstOrDefaultAsync(r =>
                 r.Id == id &&
                 r.ApplicantId == user.Value);
-
         if (resume == null)
             return (false, false);
 
@@ -86,9 +78,7 @@ public class ResumeService : IResumeService
         await LoadCategories(model);
         return model;
     }
-
     
-
     public async  Task<Dictionary<string, string>> CreateResume(CreateResumeViewModel model)
     {
         var errors = new Dictionary<string, string>();
@@ -258,8 +248,6 @@ public class ResumeService : IResumeService
 
         return (false, resume.Id, errors);
     }
-
-
     public int? GetUserId()
     {
         var value = _httpContextAccessor.HttpContext?.User
