@@ -1,12 +1,10 @@
 ﻿@using Microsoft.AspNetCore.Mvc.Rendering
-@model Vacancy
+@model HomeWork_66_Sydykbekov_Talgat.ViewModels.GetDetailsVacancyViewModel
 
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = Model.Vacancy.Title;
 
-    var myResumes =
-        ViewData["ResumeOptions"] as List<SelectListItem>
-        ?? new List<SelectListItem>();
+    var myResumes = Model.Resumes;
 }
 
 <div class="container py-4">
@@ -22,14 +20,14 @@
                             </div>
 
                             <h1 class="h2 fw-bold text-break mb-3">
-                                @Model.Title
+                                @Model.Vacancy.Title
                             </h1>
 
                             <a asp-controller="Company"
                                asp-action="Details"
-                               asp-route-id="@Model.EmployerId"
+                               asp-route-id="@Model.Vacancy.EmployerId"
                                class="text-decoration-none text-break">
-                                @Model.Employer.UserName
+                                @Model.Vacancy.Employer.UserName
                             </a>
                         </div>
                         <a asp-controller="VacancyCatalog"
@@ -39,7 +37,7 @@
                         </a>
                     </div>
                     <span class="badge bg-secondary text-wrap text-start mb-4">
-                        @Model.Category.NameCategory
+                        @Model.Vacancy.Category.NameCategory
                     </span>
 
                     <div class="row g-4 align-items-end">
@@ -48,7 +46,7 @@
                                 Зарплата
                             </div>
                             <div class="h3 fw-semibold mb-0">
-                                @Model.Salary.ToString("N2")
+                                @Model.Vacancy.Salary.ToString("N2")
                             </div>
                         </div>
 
@@ -58,8 +56,8 @@
                             </div>
 
                             <div class="fw-semibold">
-                                От @Model.ExperienceFrom
-                                до @Model.ExperienceTo лет
+                                От @Model.Vacancy.ExperienceFrom
+                                до @Model.Vacancy.ExperienceTo лет
                             </div>
                         </div>
                         @if (User.IsInRole("User") && myResumes.Count > 0)
@@ -99,7 +97,7 @@
                     <h2 class="h4 mb-4">Описание и требования</h2>
 
                     <div class="text-break">
-                        @foreach (var line in Model.Description
+                        @foreach (var line in Model.Vacancy.Description
                                           .Replace("\r\n", "\n")
                                           .Replace("\r", "\n")
                                           .Split('\n'))
@@ -110,16 +108,16 @@
                 </div>
             </section>
             <div class="d-flex flex-wrap gap-3 small text-muted px-1">
-                @if (Model.PublishedAt.HasValue)
+                @if (Model.Vacancy.PublishedAt.HasValue)
                 {
                     <span>
                         Опубликована:
-                        @Model.PublishedAt.Value.ToString("dd.MM.yyyy HH:mm") UTC
+                        @Model.Vacancy.PublishedAt.Value.ToString("dd.MM.yyyy HH:mm") UTC
                     </span>
                 }
                 <span>
                     Обновлена:
-                    @Model.UpdatedAt.ToString("dd.MM.yyyy HH:mm") UTC
+                    @Model.Vacancy.UpdatedAt.ToString("dd.MM.yyyy HH:mm") UTC
                 </span>
             </div>
 
@@ -140,7 +138,7 @@
                       method="post">
                     <input type="hidden"
                            name="vacancyId"
-                           value="@Model.Id" />
+                           value="@Model.Vacancy.Id" />
 
                     <div class="modal-header">
                         <h5 class="modal-title" id="applyModalTitle">
@@ -158,7 +156,7 @@
                             Вакансия
                         </div>
                         <div class="fw-semibold text-break mb-4">
-                            @Model.Title
+                            @Model.Vacancy.Title
                         </div>
                         <label for="applyResume"
                                class="form-label fw-semibold">
