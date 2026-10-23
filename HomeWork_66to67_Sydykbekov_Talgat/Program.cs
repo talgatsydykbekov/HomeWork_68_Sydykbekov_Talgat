@@ -33,6 +33,7 @@ builder.Services.AddScoped<IEducationService, EducationService>();
 builder.Services.AddScoped<IEmployerApplicationService, EmployerApplicationService>();
 builder.Services.AddScoped<IJobApplicationService, JobApplicationService>();
 builder.Services.AddScoped<IResumeCatalogService, ResumeCatalogService>();
+builder.Services.AddScoped<IResumeService, ResumeService>();
 
 
 var app = builder.Build();
